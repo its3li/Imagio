@@ -104,7 +104,7 @@ export async function generateImage(
     params.append('enhance', finalSettings.enhance.toString());
     params.append('nologo', finalSettings.nologo.toString());
     params.append('private', finalSettings.private.toString());
-    params.append('safe', finalSettings.safe.toString());
+    params.append('safe', true ());
     params.append('width', dimensions.width.toString());
     params.append('height', dimensions.height.toString());
     params.append('guidance', '8');
