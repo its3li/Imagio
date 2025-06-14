@@ -73,8 +73,7 @@ const nsfwKeywords = [
   'bangbros', 'brazzers', 'nasty', 'cumshot', 'money shot', 'licking', 'suck', 'deep', 'wet', 'hard', 'moan', 'groan',
   'sex tape', 'leaked', 'amateur porn', 'hardcore', 'softcore', 'adult', 'XXX', 'NSFW', 'taboo', 'stepmom', 'stepsis', 
   'stepbro', 'gay sex', 'lesbian sex', 'gay porn', 'lesbian porn', 'trans porn', 'intercourse', 'penetration', 
-  'rear entry', 'nudity', 'strip', 'stripping', 'lap dance', 'pole dance'
-];
+  'rear entry', 'nudity', 'strip', 'stripping', 'lap dance', 'pole dance','blow jop','gay','sexy','hot'];
 
 
 export async function generateImages(
