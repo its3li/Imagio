@@ -56,6 +56,27 @@ export class ImageGenerationError extends Error {
   }
 }
 
+const nsfwKeywords = [
+  'porn', 'porno', 'sex', 'nude', 'naked', 'erotic', 'hentai', 'xxx', 'masturbate', 'masturbation', 'jerk off', 'orgasm', 
+  'rape', 'raping', 'raped', 'incest', 'child abuse', 'cp', 'loli', 'shota', 'pedophile', 'pedophilia', 'sexual explicit', 
+  'explicit', 'pussy', 'vagina', 'penis', 'dick', 'cock', 'balls', 'boobs', 'tits', 'breasts', 'nipples', 'ass', 'butt', 
+  'buttocks', 'anal', 'fuck', 'fucked', 'fucking', 'cum', 'jizz', 'sperm', 'semen', 'blowjob', 'bj', 'handjob', 'hj', 
+  'facial', 'deepthroat', 'throatfuck', 'gangbang', 'orgy', 'threesome', 'foursome', 'pegging', 'rimming', '69', 
+  'bondage', 'bdsm', 'dominatrix', 'submissive', 'fetish', 'footjob', 'fisting', 'cock ring', 'vibrator', 'dildo', 
+  'buttplug', 'gag', 'choke', 'spanking', 'squirting', 'creampie', 'milf', 'teen', 'barely legal', 'underage', 'schoolgirl',
+  'camgirl', 'webcam sex', 'onlyfans', 'escort', 'prostitute', 'whore', 'slut', 'hooker', 'bitch', 'tranny', 'shemale', 
+  'trap', 'futa', 'futanari', 'vore', 'tentacle', 'beastiality', 'zoophilia', 'scat', 'watersports', 'piss', 'pee', 'urine',
+  'blood', 'bloody', 'gore', 'violent', 'violence', 'gruesome', 'decapitated', 'torture', 'mutilation', 'disembowel', 
+  'dead body', 'corpse', 'necrophilia', 'snuff', 'knifeplay', 'rapeplay', 'abduction', 'chloroform', 'drugged', 
+  'nonconsensual', 'forced', 'molest', 'molestation', 'child porn', 'underaged', 'abuse', 'abusive', 'tittyfuck', 'doggystyle',
+  'missionary', 'cowgirl', 'reverse cowgirl', 'handcuffs', 'nipple clamps', 'sex toy', 'pornhub', 'xvideos', 'xnxx', 'redtube',
+  'bangbros', 'brazzers', 'nasty', 'cumshot', 'money shot', 'licking', 'suck', 'deep', 'wet', 'hard', 'moan', 'groan',
+  'sex tape', 'leaked', 'amateur porn', 'hardcore', 'softcore', 'adult', 'XXX', 'NSFW', 'taboo', 'stepmom', 'stepsis', 
+  'stepbro', 'gay sex', 'lesbian sex', 'gay porn', 'lesbian porn', 'trans porn', 'intercourse', 'penetration', 
+  'rear entry', 'nudity', 'strip', 'stripping', 'lap dance', 'pole dance'
+];
+
+
 export async function generateImages(
   prompt: string,
   model: string,
@@ -81,6 +102,15 @@ export async function generateImage(
     throw new ImageGenerationError('Prompt is required');
   }
 
+  // --- NSFW Content Check ---
+  const lowerCasePrompt = prompt.toLowerCase();
+  for (const keyword of nsfwKeywords) {
+    if (lowerCasePrompt.includes(keyword)) {
+      throw new ImageGenerationError('Content that violates our community guidelines (e.g., NSFW, hate speech, gore) is not allowed.');
+    }
+  }
+  // --- End NSFW Content Check ---
+
   try {
     const finalSettings = {
       ...defaultSettings,
@@ -104,7 +134,7 @@ export async function generateImage(
     params.append('enhance', finalSettings.enhance.toString());
     params.append('nologo', finalSettings.nologo.toString());
     params.append('private', finalSettings.private.toString());
-    params.append('safe', finalSettings.safe.toString()); ());
+    params.append('safe', finalSettings.safe.toString());
     params.append('width', dimensions.width.toString());
     params.append('height', dimensions.height.toString());
     params.append('guidance', '8');
