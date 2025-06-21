@@ -101,15 +101,6 @@ export async function generateImage(
     throw new ImageGenerationError('Prompt is required');
   }
 
-  // --- NSFW Content Check ---
-  const lowerCasePrompt = prompt.toLowerCase();
-  for (const keyword of nsfwKeywords) {
-    if (lowerCasePrompt.includes(keyword)) {
-      throw new ImageGenerationError('Content that violates our community guidelines (e.g., NSFW, hate speech, gore) is not allowed.');
-    }
-  }
-  // --- End NSFW Content Check ---
-
   try {
     const finalSettings = {
       ...defaultSettings,
