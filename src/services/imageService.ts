@@ -34,7 +34,7 @@ export const modelOptions = [
 ];
 
 const defaultSettings: ImageSettings = {
-  model: 'none',
+  model: 'zimage',
   enhance: true,
   nologo: true,
   private: true,
