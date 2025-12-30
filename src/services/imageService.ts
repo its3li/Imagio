@@ -5,7 +5,7 @@ export const modelOptions = [
     id: 'none',
     label: 'No Style',
     description: 'Generate images without any specific style modifications',
-    promptSuffix: ', high quality, detailed, 8k uhd, professional'
+    promptSuffix: ' '
   },
   {
     id: 'photorealistic',
