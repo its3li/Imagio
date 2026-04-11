@@ -39,7 +39,7 @@ export function CommunityPage() {
       if (navigator.share) {
         await navigator.share({
           title: 'Check out this amazing AI-generated image!',
-          text: 'Created with Dreamator',
+          text: 'Created with Imagio',
           url: url,
         });
       } else {
@@ -141,7 +141,7 @@ async function fetchCommunityImages(page: number): Promise<ImageData[]> {
     isLoading: false,
     settings: {
       seed: Math.random(),
-      model: 'balanced'
+      model: 'zimage'
     }
   }));
 }

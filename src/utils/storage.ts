@@ -1,6 +1,6 @@
 import { ImageData } from '../types';
 
-const STORAGE_KEY = 'dreamator_images';
+const STORAGE_KEY = 'imagio_images';
 
 export function saveImages(images: ImageData[]) {
   try {
