@@ -94,7 +94,7 @@ function App() {
       if (navigator.share) {
         await navigator.share({
           title: 'Check out my AI-generated image!',
-          text: 'Created with Dreamator',
+          text: 'Created with Imagio',
           url: url,
         });
       } else {
@@ -107,17 +107,17 @@ function App() {
 
   return (
     <motion.div 
-      className="min-h-screen bg-[#0A0A0A] relative overflow-hidden"
+      className="min-h-screen bg-[#1a0702] relative overflow-hidden"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
       {/* Glowing Background Effect */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-radial from-[#1a1a1a] via-[#0A0A0A] to-[#0A0A0A]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gray-500/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-white-500/10 rounded-full blur-[100px]" />
-        <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-white-500/10 rounded-full blur-[80px]" />
+        <div className="absolute inset-0 bg-gradient-radial from-[#4a1206] via-[#1a0702] to-[#1a0702]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-red-500/20 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-orange-500/20 rounded-full blur-[100px]" />
+        <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-orange-500/20 rounded-full blur-[80px]" />
       </div>
 
       <motion.nav 
@@ -158,8 +158,8 @@ function App() {
           whileHover={{ scale: 1.05 }}
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
         >
-          <span className="bg-gradient-to-r from-white to-white/80 text-transparent bg-clip-text">
-            Dreamator
+          <span className="bg-gradient-to-r from-orange-300 via-orange-400 to-red-500 text-transparent bg-clip-text">
+            Imagio
           </span>
         </motion.h1>
         
