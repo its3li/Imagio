@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { prompt, width, height, seed, enhance, safe } = req.body || {};
+  const { prompt, width, height, seed, safe } = req.body || {};
 
   if (!prompt || typeof prompt !== 'string') {
     res.status(400).json({ error: 'Prompt is required.' });
@@ -23,7 +23,6 @@ export default async function handler(req, res) {
   params.append('model', 'zimage');
   params.append('width', String(width || 1024));
   params.append('height', String(height || 1024));
-  params.append('enhance', String(enhance ?? true));
   params.append('safe', String(safe ?? true));
 
   if (typeof seed === 'number') {

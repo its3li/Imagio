@@ -11,7 +11,7 @@ export const modelOptions = [
 
 const defaultSettings: ImageSettings = {
   model: 'zimage',
-  enhance: true,
+  enhance: false,
   nologo: true,
   private: true,
   safe: true,
@@ -85,7 +85,6 @@ export async function generateImage(
         width: dimensions.width,
         height: dimensions.height,
         seed: settings.seed,
-        enhance: finalSettings.enhance,
         safe: finalSettings.safe
       })
     });
