@@ -2,7 +2,6 @@ import { Sparkles, Wand2, Settings, Lightbulb, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { ImageSettings } from '../types';
-import { modelOptions } from '../services/imageService';
 
 interface ImageGeneratorProps {
   onGenerate: (prompt: string, model: string, settings: Partial<ImageSettings>) => Promise<void>;
@@ -21,7 +20,7 @@ const promptSuggestions = [
 export function ImageGenerator({ onGenerate, isGenerating, message }: ImageGeneratorProps) {
   const [prompt, setPrompt] = useState('');
   const [showSettings, setShowSettings] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('balanced');
+  const [selectedModel] = useState('zimage');
   const [aspectRatio, setAspectRatio] = useState<'square' | 'vertical' | 'horizontal'>('square');
   const [imageCount, setImageCount] = useState(2);
   const [showPromptSuggestions, setShowPromptSuggestions] = useState(false);
@@ -177,32 +176,6 @@ export function ImageGenerator({ onGenerate, isGenerating, message }: ImageGener
               transition={{ duration: 0.3 }}
               className="mt-6 space-y-6"
             >
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-white/70">
-                  Style
-                </label>
-                <div className="grid grid-cols-1 gap-3">
-                  {modelOptions.map((option) => (
-                    <button
-                      key={option.id}
-                      onClick={() => setSelectedModel(option.id)}
-                      className={`p-4 rounded-xl text-left transition-all duration-300 ${
-                        selectedModel === option.id
-                          ? 'bg-white/20 border border-white/20'
-                          : 'bg-white/5 hover:bg-white/10'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-white/90">{option.label}</div>
-                          <div className="text-sm text-white/50">{option.description}</div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <div className="space-y-4">
                 <label className="block text-sm font-medium text-white/70">
                   Aspect Ratio

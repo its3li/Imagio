@@ -1,6 +1,6 @@
-# Dreamator AI 🎨
+# Imagio AI 🎨
 
-Dreamator AI is a powerful image generation web application that transforms text descriptions into stunning visual artwork using artificial intelligence.
+Imagio AI is a powerful image generation web application that transforms text descriptions into stunning visual artwork using artificial intelligence.
 
 ## Features ✨
 
@@ -26,7 +26,7 @@ Dreamator AI is a powerful image generation web application that transforms text
 
 ## Live Demo 🌐
 
-Visit [Dreamator AI](dreamator-ai.vercel.app) to try it out!
+Visit [Imagio AI](imagio-ai.vercel.app) to try it out!
 
 ## Key Features Explained 📝
 
@@ -48,7 +48,7 @@ Visit [Dreamator AI](dreamator-ai.vercel.app) to try it out!
 
 ## Contributing 🤝
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/its3li/dreamator-ai/issues).
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/its3li/imagio-ai/issues).
 
 ## License 📄
 

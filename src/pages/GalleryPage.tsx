@@ -45,7 +45,7 @@ export function GalleryPage() {
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = 'dreamator-image.png';
+      link.download = 'imagio-image.png';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -60,7 +60,7 @@ export function GalleryPage() {
       if (navigator.share) {
         await navigator.share({
           title: 'Check out my AI-generated image!',
-          text: 'Created with Dreamator',
+          text: 'Created with Imagio',
           url: url,
         });
       } else {
