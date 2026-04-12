@@ -1,3 +1,9 @@
+const NSFW_PATTERN = /\b(nsfw|nude|nudity|naked|sex|sexual|porn|porno|xxx|erotic|fetish|boobs?|breasts?|nipples?|vagina|penis|genitals?|lingerie|bdsm|explicit)\b/i;
+
+function containsNsfwContent(text) {
+  return NSFW_PATTERN.test(text);
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -14,6 +20,11 @@ export default async function handler(req, res) {
 
   if (!prompt || typeof prompt !== 'string') {
     res.status(400).json({ error: 'Prompt is required.' });
+    return;
+  }
+
+  if (containsNsfwContent(prompt)) {
+    res.status(400).json({ error: 'NSFW prompts are blocked. Please use a safe-for-work prompt.' });
     return;
   }
 

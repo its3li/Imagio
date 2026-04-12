@@ -1,5 +1,11 @@
 import { ImageSettings, ImageResponse } from '../types';
 
+const NSFW_PATTERN = /\b(nsfw|nude|nudity|naked|sex|sexual|porn|porno|xxx|erotic|fetish|boobs?|breasts?|nipples?|vagina|penis|genitals?|lingerie|bdsm|explicit)\b/i;
+
+function containsNsfwContent(text: string): boolean {
+  return NSFW_PATTERN.test(text);
+}
+
 export const modelOptions = [
   {
     id: 'zimage',
@@ -59,6 +65,10 @@ export async function generateImage(
     throw new ImageGenerationError('Prompt is required');
   }
 
+  if (containsNsfwContent(prompt)) {
+    throw new ImageGenerationError('NSFW prompts are blocked. Please use a safe-for-work prompt.');
+  }
+
   try {
     const finalSettings = {
       ...defaultSettings,
@@ -70,6 +80,10 @@ export async function generateImage(
 
     if (originalPrompt) {
       combinedPrompt = `${originalPrompt}, ${prompt.trim()}`;
+    }
+
+    if (containsNsfwContent(combinedPrompt)) {
+      throw new ImageGenerationError('NSFW prompts are blocked. Please use a safe-for-work prompt.');
     }
 
     const dimensions = aspectRatioSizes[finalSettings.aspectRatio || 'square'];
