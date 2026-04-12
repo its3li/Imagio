@@ -77,7 +77,8 @@ function App() {
 
       setMessage('Images generated successfully!');
     } catch (error) {
-      setMessage('Error generating images. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Error generating images. Please try again.';
+      setMessage(`Error: ${errorMessage}`);
       console.error('Error generating images:', error);
     } finally {
       setIsGenerating(false);
