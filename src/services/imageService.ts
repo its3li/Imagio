@@ -102,7 +102,7 @@ async function checkPromptSafety(prompt: string): Promise<{ safe: boolean; reaso
 
   const encodedPrompt = encodeURIComponent(prompt);
   const params = new URLSearchParams({
-    model: 'nova-fast',
+    model: 'openai',
     json: 'true',
     stream: 'false',
     temperature: '0',
