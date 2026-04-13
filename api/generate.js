@@ -110,9 +110,7 @@ export default async function handler(req, res) {
       return;
     }
   } catch (error) {
-    console.error('Safety check failed:', error);
-    res.status(503).json({ error: 'Prompt safety check failed. Please try again shortly.' });
-    return;
+    console.error('Safety check failed, continuing with regex-only guard:', error);
   }
 
   const encodedPrompt = encodeURIComponent(prompt.trim());
