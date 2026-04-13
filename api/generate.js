@@ -71,7 +71,7 @@ async function isPromptSafeWithModel(prompt, apiKey) {
   });
 
   // FIXED: Standard Pollinations Text API URL
-  const safetyUrl = `https://gen.pollinations.ai/text/${encodedPrompt}?${params.toString()}`;
+ const safetyUrl = `https://text.pollinations.ai/${encodedPrompt}?${params.toString()}`;
 
   const response = await fetch(safetyUrl, {
     headers: {
