@@ -29,30 +29,30 @@ function containsNsfwContent(text) {
 function parseSafetyResponse(rawText) {
   const trimmed = String(rawText || '').trim();
 
+  // 1. Try standard JSON parsing first
   try {
     const parsed = JSON.parse(trimmed);
     if (typeof parsed.safe === 'boolean') {
       return parsed;
     }
   } catch {
-    // fall through to best-effort parsing
+    // fall through to best-effort text parsing
   }
 
-  const lower = trimmed.toLowerCase();
+  // 2. Remove spaces to safely catch things like { "safe" : false }
+  const normalizedLower = trimmed.toLowerCase().replace(/\s+/g, '');
 
   if (
-    lower.includes('"safe":false') ||
-    lower.includes('"safe": false') ||
-    lower.includes('safe=false') ||
-    lower.includes('unsafe')
+    normalizedLower.includes('"safe":false') ||
+    normalizedLower.includes('safe=false') ||
+    trimmed.toLowerCase().includes('unsafe')
   ) {
     return { safe: false, reason: `Blocked by ${SAFETY_MODEL} safety model response.` };
   }
 
   if (
-    lower.includes('"safe":true') ||
-    lower.includes('"safe": true') ||
-    lower.includes('safe=true')
+    normalizedLower.includes('"safe":true') ||
+    normalizedLower.includes('safe=true')
   ) {
     return { safe: true };
   }
@@ -70,7 +70,8 @@ async function isPromptSafeWithModel(prompt, apiKey) {
     system: SAFETY_SYSTEM_PROMPT,
   });
 
-  const safetyUrl = `https://gen.pollinations.ai/text/${encodedPrompt}?${params.toString()}`;
+  // FIXED: Standard Pollinations Text API URL
+  const safetyUrl = `https://text.pollinations.ai/${encodedPrompt}?${params.toString()}`;
 
   const response = await fetch(safetyUrl, {
     headers: {
@@ -116,12 +117,14 @@ export default async function handler(req, res) {
 
   const trimmedPrompt = prompt.trim();
 
+  // Initial fast regex check on the backend
   if (containsNsfwContent(trimmedPrompt)) {
     return res
       .status(400)
       .json({ error: 'NSFW prompts are blocked. Please use a safe-for-work prompt.' });
   }
 
+  // Deep LLM check on the backend
   try {
     const safetyCheck = await isPromptSafeWithModel(trimmedPrompt, apiKey);
     if (!safetyCheck.safe) {
@@ -151,7 +154,8 @@ export default async function handler(req, res) {
     params.append('seed', String(parsedSeed));
   }
 
-  const pollinationsUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?${params.toString()}`;
+  // FIXED: Standard Pollinations Image API URL
+  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?${params.toString()}`;
 
   try {
     const response = await fetch(pollinationsUrl, {
