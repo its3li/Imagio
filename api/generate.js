@@ -1,6 +1,6 @@
 const NSFW_PATTERN = /\b(nsfw|nude|nudity|naked|sex|sexual|porn|porno|xxx|erotic|fetish|boobs?|breasts?|nipples?|vagina|penis|dick|cock|genitals?|lingerie|bdsm|explicit)\b/i;
-const SAFETY_MODEL = 'qwen-safety';
-const SAFETY_SYSTEM_PROMPT = 'You are a strict NSFW classifier. Return only JSON with keys: safe (boolean), category (string), reason (string). Mark safe=false for any sexual, explicit, pornographic, nudity, fetish, or erotic request.';
+const SAFETY_MODEL = 'nova-fast';
+const SAFETY_SYSTEM_PROMPT = 'You are a strict NSFW classifier. Return only JSON with keys: safe (boolean). Mark safe=false for any sexual, explicit, pornographic, nudity, fetish, or erotic request.';
 
 function normalizePrompt(text) {
   return text
