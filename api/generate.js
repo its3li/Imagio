@@ -1,6 +1,9 @@
-const NSFW_PATTERN = /\b(nsfw|nude|nudity|naked|sex|sexual|porn|porno|xxx|erotic|fetish|boobs?|breasts?|nipples?|vagina|penis|dick|cock|genitals?|lingerie|bdsm|explicit)\b/i;
+const NSFW_PATTERN =
+  /\b(nsfw|nude|nudity|naked|sex|sexual|porn|porno|xxx|erotic|fetish|boobs?|breasts?|nipples?|vagina|penis|dick|cock|genitals?|lingerie|bdsm|explicit)\b/i;
+
 const SAFETY_MODEL = 'nova-fast';
-const SAFETY_SYSTEM_PROMPT = 'You are a strict NSFW classifier. Return only JSON with keys: safe (boolean). Mark safe=false for any sexual, explicit, pornographic, nudity, fetish, or erotic request.';
+const SAFETY_SYSTEM_PROMPT =
+  'You are a strict NSFW classifier. Return only JSON with keys: safe (boolean). Mark safe=false for any sexual, explicit, pornographic, nudity, fetish, or erotic request.';
 
 function normalizePrompt(text) {
   return text
@@ -19,11 +22,12 @@ function normalizePrompt(text) {
 }
 
 function containsNsfwContent(text) {
+  if (typeof text !== 'string') return false;
   return NSFW_PATTERN.test(text) || NSFW_PATTERN.test(normalizePrompt(text));
 }
 
 function parseSafetyResponse(rawText) {
-  const trimmed = rawText.trim();
+  const trimmed = String(rawText || '').trim();
 
   try {
     const parsed = JSON.parse(trimmed);
@@ -35,11 +39,21 @@ function parseSafetyResponse(rawText) {
   }
 
   const lower = trimmed.toLowerCase();
-  if (lower.includes('"safe":false') || lower.includes('safe=false') || lower.includes('unsafe')) {
-    return { safe: false, reason: 'Blocked by qwen-safety model response.' };
+
+  if (
+    lower.includes('"safe":false') ||
+    lower.includes('"safe": false') ||
+    lower.includes('safe=false') ||
+    lower.includes('unsafe')
+  ) {
+    return { safe: false, reason: `Blocked by ${SAFETY_MODEL} safety model response.` };
   }
 
-  if (lower.includes('"safe":true') || lower.includes('safe=true')) {
+  if (
+    lower.includes('"safe":true') ||
+    lower.includes('"safe": true') ||
+    lower.includes('safe=true')
+  ) {
     return { safe: true };
   }
 
@@ -53,14 +67,15 @@ async function isPromptSafeWithModel(prompt, apiKey) {
     json: 'true',
     stream: 'false',
     temperature: '0',
-    system: SAFETY_SYSTEM_PROMPT
+    system: SAFETY_SYSTEM_PROMPT,
   });
 
   const safetyUrl = `https://gen.pollinations.ai/text/${encodedPrompt}?${params.toString()}`;
+
   const response = await fetch(safetyUrl, {
     headers: {
-      Authorization: `Bearer ${apiKey}`
-    }
+      Authorization: `Bearer ${apiKey}`,
+    },
   });
 
   if (!response.ok) {
@@ -73,58 +88,67 @@ async function isPromptSafeWithModel(prompt, apiKey) {
 
   return {
     safe: result.safe === true,
-    reason: result.reason || ''
+    reason: result.reason || '',
   };
+}
+
+function toPositiveInt(value, fallback) {
+  const num = Number(value);
+  return Number.isInteger(num) && num > 0 ? num : fallback;
 }
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const apiKey = process.env.POLLINATIONS_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: 'Server API key is not configured.' });
-    return;
+    return res.status(500).json({ error: 'Server API key is not configured.' });
   }
 
-  const { prompt, width, height, seed, safe } = req.body || {};
+  const body = req.body ?? {};
+  const { prompt, width, height, seed, safe } = body;
 
-  if (!prompt || typeof prompt !== 'string') {
-    res.status(400).json({ error: 'Prompt is required.' });
-    return;
+  if (typeof prompt !== 'string' || !prompt.trim()) {
+    return res.status(400).json({ error: 'Prompt is required.' });
   }
 
-  if (containsNsfwContent(prompt)) {
-    res.status(400).json({ error: 'NSFW prompts are blocked. Please use a safe-for-work prompt.' });
-    return;
+  const trimmedPrompt = prompt.trim();
+
+  if (containsNsfwContent(trimmedPrompt)) {
+    return res
+      .status(400)
+      .json({ error: 'NSFW prompts are blocked. Please use a safe-for-work prompt.' });
   }
 
   try {
-    const safetyCheck = await isPromptSafeWithModel(prompt.trim(), apiKey);
+    const safetyCheck = await isPromptSafeWithModel(trimmedPrompt, apiKey);
     if (!safetyCheck.safe) {
-      res.status(400).json({
-        error: `NSFW prompts are blocked. ${safetyCheck.reason || 'Please use a safe-for-work prompt.'}`
+      return res.status(400).json({
+        error: `NSFW prompts are blocked. ${
+          safetyCheck.reason || 'Please use a safe-for-work prompt.'
+        }`,
       });
-      return;
     }
   } catch (error) {
     console.error('Safety check failed:', error);
-    res.status(503).json({ error: 'Prompt safety check failed. Please try again shortly.' });
-    return;
+    return res.status(503).json({
+      error: 'Prompt safety check failed. Please try again shortly.',
+    });
   }
 
-  const encodedPrompt = encodeURIComponent(prompt.trim());
+  const encodedPrompt = encodeURIComponent(trimmedPrompt);
   const params = new URLSearchParams();
 
   params.append('model', 'zimage');
-  params.append('width', String(width || 1024));
-  params.append('height', String(height || 1024));
+  params.append('width', String(toPositiveInt(width, 1024)));
+  params.append('height', String(toPositiveInt(height, 1024)));
   params.append('safe', String(safe ?? true));
 
-  if (typeof seed === 'number') {
-    params.append('seed', String(seed));
+  const parsedSeed = Number(seed);
+  if (Number.isInteger(parsedSeed)) {
+    params.append('seed', String(parsedSeed));
   }
 
   const pollinationsUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?${params.toString()}`;
@@ -132,14 +156,13 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(pollinationsUrl, {
       headers: {
-        Authorization: `Bearer ${apiKey}`
-      }
+        Authorization: `Bearer ${apiKey}`,
+      },
     });
 
     if (!response.ok) {
       const text = await response.text();
-      res.status(response.status).send(text || 'Failed to generate image.');
-      return;
+      return res.status(response.status).send(text || 'Failed to generate image.');
     }
 
     const contentType = response.headers.get('content-type') || 'image/jpeg';
@@ -147,9 +170,9 @@ export default async function handler(req, res) {
 
     res.setHeader('Content-Type', contentType);
     res.setHeader('Cache-Control', 'no-store');
-    res.status(200).send(imageBuffer);
+    return res.status(200).send(imageBuffer);
   } catch (error) {
     console.error('Pollinations proxy error:', error);
-    res.status(500).json({ error: 'Image generation failed.' });
+    return res.status(500).json({ error: 'Image generation failed.' });
   }
 }
