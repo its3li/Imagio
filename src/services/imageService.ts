@@ -1,27 +1,5 @@
 import { ImageSettings, ImageResponse } from '../types';
 
-const NSFW_PATTERN = /\b(nsfw|nude|nudity|naked|sex|sexual|porn|porno|xxx|erotic|fetish|boobs?|breasts?|nipples?|vagina|penis|dick|cock|genitals?|lingerie|bdsm|explicit)\b/i;
-
-function normalizePrompt(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[@]/g, 'a')
-    .replace(/[0]/g, 'o')
-    .replace(/[1!|]/g, 'i')
-    .replace(/[3]/g, 'e')
-    .replace(/[4]/g, 'a')
-    .replace(/[5$]/g, 's')
-    .replace(/[7]/g, 't')
-    .replace(/[8]/g, 'b')
-    .replace(/[^a-z\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function containsNsfwContent(text: string): boolean {
-  return NSFW_PATTERN.test(text) || NSFW_PATTERN.test(normalizePrompt(text));
-}
-
 export const modelOptions = [
   {
     id: 'zimage',
@@ -81,10 +59,6 @@ export async function generateImage(
     throw new ImageGenerationError('Prompt is required');
   }
 
-  if (containsNsfwContent(prompt)) {
-    throw new ImageGenerationError('NSFW prompts are blocked. Please use a safe-for-work prompt.');
-  }
-
   try {
     const finalSettings = {
       ...defaultSettings,
@@ -96,10 +70,6 @@ export async function generateImage(
 
     if (originalPrompt) {
       combinedPrompt = `${originalPrompt}, ${prompt.trim()}`;
-    }
-
-    if (containsNsfwContent(combinedPrompt)) {
-      throw new ImageGenerationError('NSFW prompts are blocked. Please use a safe-for-work prompt.');
     }
 
     const dimensions = aspectRatioSizes[finalSettings.aspectRatio || 'square'];
@@ -121,10 +91,16 @@ export async function generateImage(
 
     if (!response.ok) {
       const errorText = await response.text();
-      if (response.status === 500) {
-        throw new ImageGenerationError('The image generation service is currently unavailable. Please try again later.');
+      // Safely attempt to parse JSON errors returned from our api/generate handler
+      try {
+        const parsedError = JSON.parse(errorText);
+        throw new ImageGenerationError(parsedError.error || 'Failed to generate image');
+      } catch {
+        if (response.status === 500) {
+          throw new ImageGenerationError('The image generation service is currently unavailable. Please try again later.');
+        }
+        throw new ImageGenerationError(errorText || `Failed to generate image: ${response.statusText}`);
       }
-      throw new ImageGenerationError(errorText || `Failed to generate image: ${response.statusText}`);
     }
 
     const blob = await response.blob();
