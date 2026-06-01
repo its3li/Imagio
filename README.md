@@ -20,10 +20,6 @@ Imagio AI is a powerful image generation web application that transforms text de
 - **Icons**: Lucide Icons
 - **API**: Pollinations AI
 
-## Preview 🖼️
-
-[Add a screenshot or GIF of your application here]
-
 ## Live Demo 🌐
 
 Visit [Imagio AI](imagio-ai.vercel.app) to try it out!
