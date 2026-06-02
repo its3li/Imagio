@@ -1,0 +1,17 @@
+{
+  "name": "Imagio AI",
+  "short_name": "Imagio",
+  "description": "Create stunning AI-generated artwork from text prompts.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a0702",
+  "theme_color": "#1a0702",
+  "icons": [
+    {
+      "src": "/assets/images/imagio-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

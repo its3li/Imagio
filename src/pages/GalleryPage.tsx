@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Download, Share2, Trash2, ArrowUpRight } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { ImageData } from '../types';
 import { getStoredImages, removeImage } from '../utils/storage';
@@ -11,7 +11,6 @@ const IMAGES_PER_PAGE = 12;
 export function GalleryPage() {
   const [images, setImages] = useState<ImageData[]>([]);
   const [displayedImages, setDisplayedImages] = useState<ImageData[]>([]);
-  const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const { ref, inView } = useInView();
 
@@ -21,22 +20,21 @@ export function GalleryPage() {
     setDisplayedImages(loadedImages.slice(0, IMAGES_PER_PAGE));
   }, []);
 
-  useEffect(() => {
-    if (inView) {
-      loadMoreImages();
-    }
-  }, [inView]);
-
-  const loadMoreImages = () => {
+  const loadMoreImages = useCallback(() => {
     const nextImages = images.slice(
       displayedImages.length,
       displayedImages.length + IMAGES_PER_PAGE
     );
     if (nextImages.length > 0) {
       setDisplayedImages(prev => [...prev, ...nextImages]);
-      setPage(prev => prev + 1);
     }
-  };
+  }, [displayedImages.length, images]);
+
+  useEffect(() => {
+    if (inView) {
+      loadMoreImages();
+    }
+  }, [inView, loadMoreImages]);
 
   const handleDownload = async (url: string) => {
     try {

@@ -162,13 +162,14 @@ function App() {
           <span className="bg-gradient-to-r from-orange-300 via-orange-400 to-red-500 text-transparent bg-clip-text">
             Imagio
           </span>
+          <span className="sr-only"> AI Image Generator</span>
         </motion.h1>
         
         <motion.p 
           variants={itemVariants}
           className="text-base sm:text-lg text-white/60 font-space-grotesk"
         >
-          Transform your imagination into reality
+          Free AI image generator that transforms text prompts into downloadable artwork
         </motion.p>
       </motion.header>
 

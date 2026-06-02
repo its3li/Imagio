@@ -1,13 +1,5 @@
 import { ImageSettings, ImageResponse } from '../types';
 
-const API_KEY = import.meta.env.VITE_POLLINATIONS_API_KEY || '';
-
-if (!API_KEY) {
-  console.warn('VITE_POLLINATIONS_API_KEY is not set. Image generation may fail.');
-}
-
-const BASE_URL = 'https://gen.pollinations.ai';
-
 export const modelOptions = [
   {
     id: 'zimage',
@@ -22,7 +14,7 @@ const defaultSettings: ImageSettings = {
   enhance: false,
   nologo: true,
   private: true,
-  safe: false,
+  safe: true,
   imageCount: 2,
   aspectRatio: 'square'
 };
@@ -40,98 +32,18 @@ export class ImageGenerationError extends Error {
   }
 }
 
-const NSFW_PATTERN =
-  /\b(nsfw|nude|nudity|naked|sex|sexual|porn|porno|xxx|erotic|fetish|boobs?|breasts?|nipples?|vagina|penis|dick|cock|genitals?|lingerie|bdsm|explicit)\b/i;
+async function readGenerationError(response: Response): Promise<string> {
+  const contentType = response.headers.get('content-type') || '';
 
-function normalizePrompt(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[@]/g, 'a')
-    .replace(/[0]/g, 'o')
-    .replace(/[1!|]/g, 'i')
-    .replace(/[3]/g, 'e')
-    .replace(/[4]/g, 'a')
-    .replace(/[5$]/g, 's')
-    .replace(/[7]/g, 't')
-    .replace(/[8]/g, 'b')
-    .replace(/[^a-z\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function containsNsfwContent(text: string): boolean {
-  if (typeof text !== 'string') return false;
-  return NSFW_PATTERN.test(text) || NSFW_PATTERN.test(normalizePrompt(text));
-}
-
-function parseSafetyResponse(rawText: string): { safe: boolean; reason?: string } {
-  const trimmed = String(rawText || '').trim();
-
-  try {
-    const parsed = JSON.parse(trimmed);
-    if (typeof parsed.safe === 'boolean') {
-      return parsed;
+  if (contentType.includes('application/json')) {
+    const body = await response.json().catch(() => null);
+    if (body && typeof body.error === 'string') {
+      return body.error;
     }
-  } catch {
   }
 
-  const normalizedLower = trimmed.toLowerCase().replace(/\s+/g, '');
-
-  if (
-    normalizedLower.includes('"safe":false') ||
-    normalizedLower.includes('safe=false') ||
-    trimmed.toLowerCase().includes('unsafe')
-  ) {
-    return { safe: false, reason: 'Blocked by safety model.' };
-  }
-
-  if (
-    normalizedLower.includes('"safe":true') ||
-    normalizedLower.includes('safe=true')
-  ) {
-    return { safe: true };
-  }
-
-  return { safe: false, reason: 'Unable to verify prompt safety.' };
-}
-
-async function checkPromptSafety(prompt: string): Promise<{ safe: boolean; reason?: string }> {
-  if (containsNsfwContent(prompt)) {
-    return { safe: false, reason: 'NSFW content detected by keyword filter.' };
-  }
-
-  const encodedPrompt = encodeURIComponent(prompt);
-  const params = new URLSearchParams({
-    model: 'nova-fast',
-    json: 'true',
-    stream: 'false',
-    temperature: '0',
-    system: 'You are a strict NSFW classifier. Return only JSON with keys: safe (boolean). Mark safe=false for any sexual, explicit, pornographic, nudity, fetish, or erotic request.',
-  });
-
-  const safetyUrl = `${BASE_URL}/text/${encodedPrompt}?${params.toString()}`;
-
-  try {
-    const response = await fetch(safetyUrl, {
-      headers: {
-        Authorization: `Bearer ${API_KEY}`,
-      },
-    });
-
-    if (!response.ok) {
-      return { safe: true };
-    }
-
-    const rawText = await response.text();
-    const result = parseSafetyResponse(rawText);
-
-    return {
-      safe: result.safe === true,
-      reason: result.reason,
-    };
-  } catch {
-    return { safe: true };
-  }
+  const text = await response.text().catch(() => '');
+  return text || `Failed to generate image: ${response.statusText}`;
 }
 
 export async function generateImages(
@@ -140,12 +52,8 @@ export async function generateImages(
   count: number = 2,
   settings: Partial<ImageSettings> = {}
 ): Promise<ImageResponse[]> {
-  const safetyCheck = await checkPromptSafety(prompt);
-  if (!safetyCheck.safe) {
-    throw new ImageGenerationError(`NSFW prompts are blocked. ${safetyCheck.reason || 'Please use a safe-for-work prompt.'}`);
-  }
-
-  const promises = Array(count)
+  const imageCount = Math.min(Math.max(Math.floor(count || 1), 1), 4);
+  const promises = Array(imageCount)
     .fill(null)
     .map(() =>
       generateImage(prompt, {
@@ -153,6 +61,7 @@ export async function generateImages(
         seed: Math.floor(Math.random() * 1000000)
       })
     );
+
   return Promise.all(promises);
 }
 
@@ -165,54 +74,42 @@ export async function generateImage(
     throw new ImageGenerationError('Prompt is required');
   }
 
-  const safetyCheck = await checkPromptSafety(prompt);
-  if (!safetyCheck.safe) {
-    throw new ImageGenerationError(`NSFW prompts are blocked. ${safetyCheck.reason || 'Please use a safe-for-work prompt.'}`);
-  }
-
   try {
     const finalSettings = {
       ...defaultSettings,
       ...settings,
-      model: 'zimage'
+      model: 'zimage',
+      safe: true
     };
 
-    let combinedPrompt = prompt.trim();
-
-    if (originalPrompt) {
-      combinedPrompt = `${originalPrompt}, ${prompt.trim()}`;
-    }
-
+    const combinedPrompt = originalPrompt
+      ? `${originalPrompt.trim()}, ${prompt.trim()}`
+      : prompt.trim();
     const dimensions = aspectRatioSizes[finalSettings.aspectRatio || 'square'];
 
-    const params = new URLSearchParams();
-    params.append('model', 'zimage');
-    params.append('width', String(dimensions.width));
-    params.append('height', String(dimensions.height));
-    params.append('nologo', 'true');
-    params.append('private', 'true');
-
-    if (settings.seed) {
-      params.append('seed', String(settings.seed));
-    }
-
-    const pollinationsUrl = `${BASE_URL}/image/${encodeURIComponent(combinedPrompt)}?${params.toString()}`;
-
-    const response = await fetch(pollinationsUrl, {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
       headers: {
-        Authorization: `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json'
       },
+      body: JSON.stringify({
+        prompt: combinedPrompt,
+        width: dimensions.width,
+        height: dimensions.height,
+        seed: finalSettings.seed,
+        safe: true
+      })
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const message = await readGenerationError(response);
       if (response.status === 402) {
         throw new ImageGenerationError('Insufficient balance. Please check your account.');
       }
-      if (response.status === 500) {
+      if (response.status === 503) {
         throw new ImageGenerationError('The image generation service is currently unavailable. Please try again later.');
       }
-      throw new ImageGenerationError(errorText || `Failed to generate image: ${response.statusText}`);
+      throw new ImageGenerationError(message);
     }
 
     const blob = await response.blob();
