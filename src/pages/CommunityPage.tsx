@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Download, Share2, Heart, MessageCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { ImageData } from '../types';
 import { downloadImage } from '../services/imageService';
@@ -11,13 +11,7 @@ export function CommunityPage() {
   const [hasMore, setHasMore] = useState(true);
   const { ref, inView } = useInView();
 
-  useEffect(() => {
-    if (inView) {
-      loadMoreImages();
-    }
-  }, [inView]);
-
-  const loadMoreImages = async () => {
+  const loadMoreImages = useCallback(async () => {
     try {
       // In a real app, this would fetch from your backend
       const newImages = await fetchCommunityImages(page);
@@ -27,7 +21,13 @@ export function CommunityPage() {
     } catch (error) {
       console.error('Error loading community images:', error);
     }
-  };
+  }, [page]);
+
+  useEffect(() => {
+    if (inView) {
+      loadMoreImages();
+    }
+  }, [inView, loadMoreImages]);
 
   const handleLike = async (imageId: string) => {
     // Implement like functionality

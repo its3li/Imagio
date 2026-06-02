@@ -2,6 +2,9 @@ const NSFW_PATTERN =
   /\b(nsfw|nude|nudity|naked|sex|sexual|porn|porno|xxx|erotic|fetish|boobs?|breasts?|nipples?|vagina|penis|dick|cock|genitals?|lingerie|bdsm|explicit)\b/i;
 
 const SAFETY_MODEL = 'nova-fast';
+const MAX_PROMPT_LENGTH = 1000;
+const MIN_IMAGE_DIMENSION = 256;
+const MAX_IMAGE_DIMENSION = 1536;
 const SAFETY_SYSTEM_PROMPT =
   'You are a strict NSFW classifier. Return only JSON with keys: safe (boolean). Mark safe=false for any sexual, explicit, pornographic, nudity, fetish, or erotic request.';
 
@@ -93,9 +96,10 @@ async function isPromptSafeWithModel(prompt, apiKey) {
   };
 }
 
-function toPositiveInt(value, fallback) {
+function toBoundedInt(value, fallback, min, max) {
   const num = Number(value);
-  return Number.isInteger(num) && num > 0 ? num : fallback;
+  if (!Number.isInteger(num)) return fallback;
+  return Math.min(Math.max(num, min), max);
 }
 
 export default async function handler(req, res) {
@@ -109,13 +113,19 @@ export default async function handler(req, res) {
   }
 
   const body = req.body ?? {};
-  const { prompt, width, height, seed, safe } = body;
+  const { prompt, width, height, seed } = body;
 
   if (typeof prompt !== 'string' || !prompt.trim()) {
     return res.status(400).json({ error: 'Prompt is required.' });
   }
 
   const trimmedPrompt = prompt.trim();
+
+  if (trimmedPrompt.length > MAX_PROMPT_LENGTH) {
+    return res.status(400).json({
+      error: `Prompt must be ${MAX_PROMPT_LENGTH} characters or fewer.`,
+    });
+  }
 
   // Initial fast regex check on the backend
   if (containsNsfwContent(trimmedPrompt)) {
@@ -145,9 +155,11 @@ export default async function handler(req, res) {
   const params = new URLSearchParams();
 
   params.append('model', 'zimage');
-  params.append('width', String(toPositiveInt(width, 1024)));
-  params.append('height', String(toPositiveInt(height, 1024)));
-  params.append('safe', String(safe ?? true));
+  params.append('width', String(toBoundedInt(width, 1024, MIN_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION)));
+  params.append('height', String(toBoundedInt(height, 1024, MIN_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION)));
+  params.append('safe', 'true');
+  params.append('nologo', 'true');
+  params.append('private', 'true');
 
   const parsedSeed = Number(seed);
   if (Number.isInteger(parsedSeed)) {

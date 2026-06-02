@@ -7,6 +7,7 @@ export interface ImageSettings {
   imageCount?: number;
   aspectRatio?: 'square' | 'vertical' | 'horizontal';
   originalPrompt?: string;
+  seed?: number;
 }
 
 export interface ImageHistory {
@@ -20,9 +21,7 @@ export interface ImageData {
   editPrompt?: string;
   isEditing: boolean;
   isLoading: boolean;
-  settings: {
-    model: string;
-  };
+  settings: ImageSettings;
   history?: ImageHistory[];
 }
 

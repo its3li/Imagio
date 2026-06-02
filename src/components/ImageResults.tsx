@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Download, Wand2, X, Share2, ArrowLeft } from 'lucide-react';
+import { Download, Wand2, Share2, ArrowLeft } from 'lucide-react';
 import { ImageData } from '../types';
 import { useState } from 'react';
 
@@ -66,11 +66,18 @@ export function ImageResults({ images, onImageClick, onEditImage, downloadImage,
                 }}
               >
                 <div className={`${aspectRatioClass} overflow-hidden rounded-2xl glass-morphism relative`}>
-                  <img
-                    src={image.url}
-                    alt={`Generated image ${index + 1}`}
-                    className="w-full h-full object-contain"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => onImageClick(index)}
+                    className="block w-full h-full"
+                    title="Open generated image"
+                  >
+                    <img
+                      src={image.url}
+                      alt={`Generated image ${index + 1}`}
+                      className="w-full h-full object-contain"
+                    />
+                  </button>
                   {image.isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                       <div className="text-center">
