@@ -1,11 +1,19 @@
 import { ImageData } from '../types';
 
 const STORAGE_KEY = 'imagio_images';
+const MAX_STORED_IMAGES = 12;
 
 export function saveImages(images: ImageData[]) {
+  const nextImages = images.slice(0, MAX_STORED_IMAGES);
+
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(images));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextImages));
   } catch (error) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextImages.slice(0, 6)));
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+    }
     console.error('Error saving images:', error);
   }
 }

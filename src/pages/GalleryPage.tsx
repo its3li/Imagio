@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { ImageData } from '../types';
 import { getStoredImages, removeImage } from '../utils/storage';
 import { useNavigate } from 'react-router-dom';
+import { sampleGalleryItems } from '../data/siteContent';
 
 const IMAGES_PER_PAGE = 12;
 
@@ -95,12 +96,13 @@ export function GalleryPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col items-center justify-center min-h-[50vh]"
+          className="min-h-[50vh]"
         >
-          <div className="text-center">
+          <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-syne font-medium text-white mb-4">Your gallery is empty</h2>
             <p className="text-white/60 max-w-md mb-8 font-space-grotesk">
-              Start creating amazing images to fill your gallery with masterpieces
+              Start creating images to fill your personal browser gallery. Until
+              then, use these public prompt examples as inspiration.
             </p>
             <button
               onClick={() => navigate('/')}
@@ -109,6 +111,25 @@ export function GalleryPage() {
               <span className="font-space-grotesk">Create Your First Image</span>
               <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
             </button>
+          </div>
+          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {sampleGalleryItems.map((item) => (
+              <article
+                key={item.title}
+                className="overflow-hidden rounded-lg border border-white/10 bg-slate-950/40"
+              >
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="aspect-square w-full object-cover"
+                  loading="lazy"
+                />
+                <div className="p-4 text-left">
+                  <h3 className="font-syne text-lg font-semibold text-white">{item.title}</h3>
+                  <p className="mt-2 line-clamp-3 text-sm leading-6 text-white/60">{item.prompt}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </motion.div>
       ) : (

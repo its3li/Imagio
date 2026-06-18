@@ -46,6 +46,21 @@ async function readGenerationError(response: Response): Promise<string> {
   return text || `Failed to generate image: ${response.statusText}`;
 }
 
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+      } else {
+        reject(new ImageGenerationError('Generated image could not be saved.'));
+      }
+    };
+    reader.onerror = () => reject(new ImageGenerationError('Generated image could not be saved.'));
+    reader.readAsDataURL(blob);
+  });
+}
+
 export async function generateImages(
   prompt: string,
   _model: string,
@@ -113,10 +128,10 @@ export async function generateImage(
     }
 
     const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
+    const imageUrl = await blobToDataUrl(blob);
 
     return {
-      url: blobUrl,
+      url: imageUrl,
       settings: finalSettings
     };
   } catch (error) {
