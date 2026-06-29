@@ -38,10 +38,10 @@ export function HomeContent() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              to="/prompt-guide"
+              to="/guides"
               className="rounded-lg bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
             >
-              Read the prompt guide
+              Read the guides
             </Link>
             <Link
               to="/about"
@@ -73,8 +73,8 @@ export function HomeContent() {
             </p>
             <h2 className="mt-2 font-syne text-3xl font-bold">Starter ideas with reusable patterns</h2>
           </div>
-          <Link to="/gallery" className="text-sm font-semibold text-cyan-200 hover:text-cyan-100">
-            Browse gallery inspiration
+          <Link to="/guides" className="text-sm font-semibold text-cyan-200 hover:text-cyan-100">
+            Browse all guides
           </Link>
         </div>
         <div className="grid gap-4 md:grid-cols-3">

@@ -16,6 +16,31 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://imagio-ai.vercel.app/guides</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://imagio-ai.vercel.app/guides/write-ai-image-prompts</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://imagio-ai.vercel.app/guides/choose-aspect-ratio</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://imagio-ai.vercel.app/guides/safe-family-friendly-prompts</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://imagio-ai.vercel.app/guides/turn-prompts-into-social-graphics</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://imagio-ai.vercel.app/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

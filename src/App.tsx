@@ -5,9 +5,12 @@ import { ImageGenerator } from './components/ImageGenerator';
 import { ImageResults } from './components/ImageResults';
 import { ImageViewer } from './components/ImageViewer';
 import { HomeContent } from './components/HomeContent';
+import { AdSenseScript } from './components/AdSenseScript';
 import { GalleryPage } from './pages/GalleryPage';
 import { AboutPage } from './pages/AboutPage';
 import { PromptGuidePage } from './pages/PromptGuidePage';
+import { GuidesPage } from './pages/GuidesPage';
+import { GuideArticlePage } from './pages/GuideArticlePage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsPage } from './pages/TermsPage';
 import { ContactPage } from './pages/ContactPage';
@@ -18,11 +21,12 @@ import { saveImages, getStoredImages } from './utils/storage';
 const primaryNavItems = [
   { to: '/', label: 'Create' },
   { to: '/gallery', label: 'Gallery' },
-  { to: '/prompt-guide', label: 'Guide' },
+  { to: '/guides', label: 'Guides' },
 ];
 
 const footerLinks = [
   { to: '/about', label: 'About' },
+  { to: '/guides', label: 'Guides' },
   { to: '/prompt-guide', label: 'Prompt Guide' },
   { to: '/privacy', label: 'Privacy' },
   { to: '/terms', label: 'Terms' },
@@ -133,6 +137,7 @@ function App() {
       animate="visible"
       variants={containerVariants}
     >
+      <AdSenseScript />
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute inset-0 bg-gradient-radial from-[#4a1206] via-[#1a0702] to-[#1a0702]" />
         <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-red-500/20 blur-[120px]" />
@@ -240,6 +245,32 @@ function App() {
                   transition={pageTransition}
                 >
                   <GalleryPage />
+                </motion.div>
+              }
+            />
+            <Route
+              path="/guides"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={pageTransition}
+                >
+                  <GuidesPage />
+                </motion.div>
+              }
+            />
+            <Route
+              path="/guides/:slug"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={pageTransition}
+                >
+                  <GuideArticlePage />
                 </motion.div>
               }
             />
